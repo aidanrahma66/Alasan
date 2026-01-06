@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Alasan Aku Sayang Kamu</title>
+
+<style>
+    body {
+        margin: 0;
+        font-family: "Poppins", Arial, sans-serif;
+        background: linear-gradient(135deg,#0f172a,#1f2937);
+        color: #f3f4f6;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        min-height: 100vh;
+        overflow-x: hidden;
+        padding: 20px;
+        position: relative;
+    }
+
+    header {
+        text-align: center;
+        padding: 40px 20px 10px;
+        user-select: none;
+        z-index: 10;
+    }
+
+    header h1 {
+        font-weight: 700;
+        letter-spacing: 1px;
+        font-size: 2.6rem;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeUp 0.5s forwards;
+        animation-delay: 0.2s;
+    }
+
+    header p {
+        color: #cbd5e1;
+        font-size: 1.1rem;
+        margin-top: 8px;
+        opacity: 0;
+        transform: translateY(20px);
+        animation: fadeUp 0.5s forwards;
+        animation-delay: 0.5s;
+    }
+
+    .container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+        gap: 14px;
+        width: 95%;
+        max-width: 720px;
+        padding: 25px 0;
+        z-index: 10;
+    }
+
+    button.reason {
+        padding: 14px;
+        border-radius: 16px;
+        border: 1px solid rgba(255, 255, 255, .15);
+        background: rgba(255, 255, 255, .05);
+        color: #f9fafb;
+        cursor: pointer;
+        transition: transform 0.25s, background 0.25s;
+        backdrop-filter: blur(4px);
+        font-weight: 600;
+        opacity: 0;
+        transform: translateY(30px);
+        animation-fill-mode: forwards;
+    }
+
+    button.reason:hover {
+        transform: translateY(-2px) scale(1.03);
+        background: rgba(255, 255, 255, .12);
+    }
+
+    .overlay {
+        position: fixed;
+        inset: 0;
+        display: none;
+        justify-content: center;
+        align-items: center;
+        background: rgba(0, 0, 0, .55);
+        z-index: 20;
+        padding: 20px;
+    }
+
+    .popup {
+        background: #111827;
+        border: 1px solid rgba(255, 255, 255, .15);
+        border-radius: 22px;
+        padding: 28px 22px;
+        max-width: 420px;
+        text-align: center;
+        box-shadow: 0 25px 50px rgba(0, 0, 0, .5);
+        animation: pop .25s ease forwards;
+    }
+
+    @keyframes pop {
+        from {transform: scale(.8); opacity: 0;}
+        to {transform: scale(1); opacity: 1;}
+    }
+
+    .popup h2 {
+        margin-top: 0;
+    }
+
+    .close {
+        margin-top: 18px;
+        padding: 10px 16px;
+        border-radius: 14px;
+        border: none;
+        cursor: pointer;
+        background: #4b5563;
+        color: white;
+        font-weight: 600;
+    }
+
+    .finish {
+        display: none;
+        margin: 25px 10px 40px;
+        padding: 18px 18px;
+        border-radius: 18px;
+        border: 1px solid rgba(255, 255, 255, .15);
+        background: linear-gradient(135deg, #111827, #020617);
+        text-align: center;
+        font-weight: 600;
+        position: relative;
+        z-index: 10;
+    }
+
+    @keyframes fadeUp {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fallDown {
+        0% {
+            transform: translateY(-50px) rotate(0deg);
+            opacity: 1;
+        }
+        100% {
+            transform: translateY(110vh) rotate(360deg);
+            opacity: 0;
+        }
+    }
+
+    .love-drop {
+        position: fixed;
+        top: -50px;
+        font-size: 18px;
+        color: #ff4d6d;
+        user-select: none;
+        pointer-events: none;
+        animation-name: fallDown;
+        animation-timing-function: linear;
+        animation-fill-mode: forwards;
+        animation-iteration-count: 1;
+        z-index: 9;
+        text-shadow:
+            0 0 5px #ff4d6d,
+            0 0 10px #ff4d6d,
+            0 0 20px #ff4d6d;
+    }
+</style>
+</head>
+
+<body>
+
+<header>
+    <h1 id="title">Alasan Aku Sayang Kamu</h1>
+    <p id="subtitle">Klik satu-satu ya… jangan buru-buru ✨</p>
+</header>
+
+<div class="container" id="buttons"></div>
+
+<div class="finish" id="finishBox">
+    <h2>💖 Makasih udah buka semuanya</h2>
+    <p>Aku yakin kamu yang terbaik buat aku.</p>
+</div>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="popupText">
+    <div class="popup">
+        <h2 id="popupText"></h2>
+        <button class="close" onclick="closePopup()" aria-label="Tutup popup">Tutup</button>
+    </div>
+</div>
+
+<script>
+    const audioSrc = "lagu.mp3"; // ganti dengan file audio yang kamu punya
+
+    // buat objek audio
+    const audio = new Audio(audioSrc);
+    audio.loop = true;
+    audio.volume = 0.15;
+
+    // hanya mainkan audio setelah user klik (interaksi)
+    function startAudioOnUserInteraction() {
+        // jalankan play() sekali setelah klik pertama saja
+        function playAudioOnce() {
+            audio.play().catch(e => {
+                console.log("Audio gagal diputar:", e);
+            });
+            // hapus event listener supaya tidak dipanggil lagi
+            document.body.removeEventListener('click', playAudioOnce);
+        }
+        document.body.addEventListener('click', playAudioOnce);
+    }
+
+    // panggil fungsi untuk enable audio play setelah klik
+    startAudioOnUserInteraction();
+
+    const reasons = [
+        "Awalnya biasa aja, tapi lama-lama, aku sadar aku nyaman sama kamu.",
+        "Kamu bikin aku ngerasa aman untuk cerita apa aja.",
+        "Kamu nggak selalu paham aku, tapi kamu mencoba — itu berarti.",
+        "Kamu selalu ada - Aku suka karena kamu bikin aku merasa didengar.",
+        "Kamu bikin aku pengen jadi versi yang lebih baik, tapi tetap jadi diri aku.",
+        "Aku merasa beruntung hanya karena bisa kenal kamu.",
+        "Kehadiranmu aja udah cukup bikin suasana berubah",
+        "Kamu nggak sadar, tapi kehadiranmu itu nyembuhin banyak hal.",
+        "Kamu punya cara sendiri buat bikin orang merasa diterima.",
+        "Kadang aku mikir, kok bisa ya ada orang se-nyaman kamu?",
+        "Aku nggak tahu sejak kapan — cuma tau, sekarang kamu jadi penting.",
+        "Kamu apa adanya - dan itu cukup."
+    ];
+
+    const container = document.getElementById("buttons");
+    const overlay = document.getElementById("overlay");
+    const popupText = document.getElementById("popupText");
+    const finishBox = document.getElementById("finishBox");
+
+    let opened = new Set();
+
+    reasons.forEach((text, i) => {
+        const btn = document.createElement("button");
+        btn.className = "reason";
+        btn.innerText = "Alasan #" + (i + 1);
+        btn.style.animation = `fadeUp 0.5s forwards`;
+        btn.style.animationDelay = `${0.7 + i * 0.1}s`;
+        btn.onclick = () => openPopup(text, i);
+        container.appendChild(btn);
+    });
+
+    function openPopup(text, index) {
+        popupText.innerText = text;
+        overlay.style.display = "flex";
+        opened.add(index);
+
+        if (opened.size === reasons.length) {
+            finishBox.style.display = "block";
+            confettiLoveRain();
+        }
+    }
+
+    function closePopup() {
+        overlay.style.display = "none";
+    }
+
+    function confettiLoveRain() {
+        const loveCount = 60;
+        for (let i = 0; i < loveCount; i++) {
+            const love = document.createElement("span");
+            love.className = "love-drop";
+            love.innerText = "❤";
+
+            const size = 14 + Math.random() * 14;
+            love.style.fontSize = size + "px";
+
+            love.style.left = Math.random() * 100 + "vw";
+
+            love.style.animationDuration = (3 + Math.random() * 3) + "s";
+
+            love.style.animationDelay = (Math.random() * 5) + "s";
+
+            document.body.appendChild(love);
+
+            love.addEventListener("animationend", () => love.remove());
+        }
+    }
+</script>
+
+</body>
+</html>
